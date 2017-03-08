@@ -3,6 +3,8 @@
             [duct.database.sql :as sql]
             [hikaricp.core :as hikaricp]))
 
+(derive :duct.database.sql/hikaricp :duct.database/sql)
+
 (defmethod ig/init-key :duct.database.sql/hikaricp [_ options]
   (sql/->Boundary {:datasource (hikaricp/make-datasource options)}))
 
