@@ -1,7 +1,17 @@
 (ns duct.database.sql.hikaricp-test
-  (:require [clojure.test :refer :all]
-            [duct.database.sql.hikaricp :refer :all]))
+  (:require [clojure.java.io :as io]
+            [clojure.test :refer :all]
+            [duct.database.sql :as sql]
+            [duct.database.sql.hikaricp :as hikaricp]
+            [integrant.core :as ig]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(deftest connection-test
+  (let [config   {::sql/hikaricp {:jdbc-url "jdbc:sqlite:"}}
+        system   (ig/init config)
+        hikaricp (::sql/hikaricp system)]
+    (is (instance? duct.database.sql.Boundary hikaricp))
+    (let [datasource (-> hikaricp :spec :datasource)]
+      (is (instance? javax.sql.DataSource datasource))
+      (is (not (.isClosed datasource)))
+      (ig/halt! system)
+      (is (.isClosed datasource)))))
