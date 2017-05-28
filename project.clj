@@ -1,4 +1,4 @@
-(defproject duct/database.sql.hikaricp "0.1.0"
+(defproject duct/database.sql.hikaricp "0.1.1"
   :description "Integrant methods for a SQL database connection pool"
   :url "https://github.com/duct-framework/database.sql.hikaricp"
   :license {:name "Eclipse Public License"
