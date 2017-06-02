@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [duct/database.sql "0.1.0"]
                  [hikari-cp "1.7.5"]
-                 [integrant "0.3.3"]
+                 [integrant "0.4.0"]
                  [prismatic/schema "1.1.6"]]
   :profiles
   {:dev {:dependencies [[org.xerial/sqlite-jdbc "3.16.1"]
