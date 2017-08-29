@@ -48,7 +48,7 @@
     (is (= (jdbc/query spec ["SELECT * FROM foo"]) [{:id 1} {:id 2}]))
     (is (every? nat-int? (map elapsed @logs)))
     (is (= (map remove-elapsed @logs)
-           [[:info ::hikaricp/query {:query "CREATE TABLE foo (id INT)"}]
-            [:info ::hikaricp/batch-query {:queries ["INSERT INTO foo VALUES (1)"
+           [[:info ::sql/query {:query "CREATE TABLE foo (id INT)"}]
+            [:info ::sql/batch-query {:queries ["INSERT INTO foo VALUES (1)"
                                                      "INSERT INTO foo VALUES (2)"]}]
-            [:info ::hikaricp/query {:query "SELECT * FROM foo"}]]))))
+            [:info ::sql/query {:query "SELECT * FROM foo"}]]))))

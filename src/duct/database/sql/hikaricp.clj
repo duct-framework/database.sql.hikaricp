@@ -13,8 +13,8 @@
       (let [elapsed (.getElapsedTime exec-info)
             queries (mapv #(.getQuery %) query-infos)]
         (if (= (count queries) 1)
-          (log/log logger :info ::query {:query (first queries), :elapsed elapsed})
-          (log/log logger :info ::batch-query {:queries queries, :elapsed elapsed}))))))
+          (log/log logger :info ::sql/query {:query (first queries), :elapsed elapsed})
+          (log/log logger :info ::sql/batch-query {:queries queries, :elapsed elapsed}))))))
 
 (defn- wrap-logger [datasource logger]
   (doto (ProxyDataSource. datasource)
