@@ -13,7 +13,7 @@
 
 To install, add the following to your project `:dependencies`:
 
-    [duct/database.sql.hikaricp "0.2.0"]
+    [duct/database.sql.hikaricp "0.3.0"]
 
 ## Usage
 
