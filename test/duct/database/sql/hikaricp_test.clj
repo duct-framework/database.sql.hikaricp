@@ -38,6 +38,9 @@
 (defn- elapsed [[_ _ {:keys [elapsed]}]]
   elapsed)
 
+(defn- unwrap-logger [^javax.sql.DataSource datasource]
+  (.unwrap datasource javax.sql.DataSource))
+
 (deftest logging-test
   (let [logs     (atom [])
         logger   (->AtomLogger logs)
@@ -51,4 +54,7 @@
            [[:info ::sql/query {:query "CREATE TABLE foo (id INT)"}]
             [:info ::sql/batch-query {:queries ["INSERT INTO foo VALUES (1)"
                                                      "INSERT INTO foo VALUES (2)"]}]
-            [:info ::sql/query {:query "SELECT * FROM foo"}]]))))
+            [:info ::sql/query {:query "SELECT * FROM foo"}]]))
+    (is (not (.isClosed (unwrap-logger (:datasource spec)))))
+    (ig/halt-key! ::sql/hikaricp hikaricp)
+    (is (.isClosed (unwrap-logger (:datasource spec))))))
