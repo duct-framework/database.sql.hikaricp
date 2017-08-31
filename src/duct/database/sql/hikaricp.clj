@@ -3,7 +3,8 @@
             [duct.database.sql :as sql]
             [duct.logger :as log]
             [hikari-cp.core :as hikari-cp])
-  (:import [net.ttddyy.dsproxy.support ProxyDataSource]
+  (:import [javax.sql DataSource]
+           [net.ttddyy.dsproxy.support ProxyDataSource]
            [net.ttddyy.dsproxy.listener QueryExecutionListener]))
 
 (defn- logging-listener [logger]
@@ -20,9 +21,13 @@
   (doto (ProxyDataSource. datasource)
     (.addListener (logging-listener logger))))
 
+(defn- unwrap-logger [^DataSource datasource]
+  (.unwrap datasource DataSource))
+
 (defmethod ig/init-key :duct.database.sql/hikaricp [_ {:keys [logger] :as options}]
   (sql/->Boundary {:datasource (-> (hikari-cp/make-datasource options)
                                    (cond-> logger (wrap-logger logger)))}))
 
 (defmethod ig/halt-key! :duct.database.sql/hikaricp [_ {:keys [spec]}]
-  (hikari-cp/close-datasource (:datasource spec)))
+  (let [ds (unwrap-logger (:datasource spec))]
+    (hikari-cp/close-datasource ds)))
