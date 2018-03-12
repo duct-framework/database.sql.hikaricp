@@ -38,7 +38,8 @@
   (.unwrap datasource DataSource))
 
 (defmethod ig/init-key :duct.database.sql/hikaricp [_ {:keys [logger] :as options}]
-  (sql/->Boundary {:datasource (-> (hikari-cp/make-datasource options)
+  (sql/->Boundary {:datasource (-> (dissoc options :logger)
+                                   (hikari-cp/make-datasource)
                                    (cond-> logger (wrap-logger logger)))}))
 
 (defmethod ig/halt-key! :duct.database.sql/hikaricp [_ {:keys [spec]}]
