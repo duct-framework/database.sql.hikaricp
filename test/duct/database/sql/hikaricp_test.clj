@@ -11,15 +11,27 @@
 (duct/load-hierarchy)
 
 (deftest connection-test
-  (let [config   {::sql/hikaricp {:jdbc-url "jdbc:sqlite:"}}
-        system   (ig/init config)
-        hikaricp (::sql/hikaricp system)]
-    (is (instance? duct.database.sql.Boundary hikaricp))
-    (let [datasource (-> hikaricp :spec :datasource)]
-      (is (instance? javax.sql.DataSource datasource))
-      (is (not (.isClosed datasource)))
-      (ig/halt! system)
-      (is (.isClosed datasource)))))
+  (testing "jdbc-url"
+    (let [config   {::sql/hikaricp {:jdbc-url "jdbc:sqlite:"}}
+          system   (ig/init config)
+          hikaricp (::sql/hikaricp system)]
+      (is (instance? duct.database.sql.Boundary hikaricp))
+      (let [datasource (-> hikaricp :spec :datasource)]
+        (is (instance? javax.sql.DataSource datasource))
+        (is (not (.isClosed datasource)))
+        (ig/halt! system)
+        (is (.isClosed datasource)))))
+
+  (testing "connection-uri"
+    (let [config   {::sql/hikaricp {:connection-uri "jdbc:sqlite:"}}
+          system   (ig/init config)
+          hikaricp (::sql/hikaricp system)]
+      (is (instance? duct.database.sql.Boundary hikaricp))
+      (let [datasource (-> hikaricp :spec :datasource)]
+        (is (instance? javax.sql.DataSource datasource))
+        (is (not (.isClosed datasource)))
+        (ig/halt! system)
+        (is (.isClosed datasource))))))
 
 (deftest execute-test
   (let [spec (:spec (ig/init-key ::sql/hikaricp {:jdbc-url "jdbc:sqlite:"}))]
