@@ -7,10 +7,10 @@
                  [duct/core "0.6.2"]
                  [duct/database.sql "0.1.0"]
                  [duct/logger "0.2.1"]
-                 [hikari-cp "2.2.0"]
+                 [hikari-cp "2.4.0"]
                  [integrant "0.6.3"]
-                 [net.ttddyy/datasource-proxy "1.4.7"]]
+                 [net.ttddyy/datasource-proxy "1.4.9"]]
   :profiles
-  {:dev {:dependencies [[org.xerial/sqlite-jdbc "3.21.0.1"]
+  {:dev {:dependencies [[org.xerial/sqlite-jdbc "3.23.1"]
                         [org.slf4j/slf4j-nop "1.7.25"]
-                        [org.clojure/java.jdbc "0.7.5"]]}})
+                        [org.clojure/java.jdbc "0.7.6"]]}})
