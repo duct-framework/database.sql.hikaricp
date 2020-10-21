@@ -18,32 +18,34 @@
 (defn- logged-query [^QueryInfo query-info]
   (let [query  (.getQuery query-info)
         params (query-parameter-lists query-info)]
-    (into [query] (if (= (count params) 1) (first params) params))))
+   (into [query] (if (= (count params) 1) (first params) params))))
 
-(defn- logging-listener [logger]
+(defn- logging-listener [logger query-formatter]
   (reify QueryExecutionListener
     (beforeQuery [_ _ _])
     (afterQuery [_ exec-info query-infos]
       (let [elapsed (.getElapsedTime exec-info)
-            queries (mapv logged-query query-infos)]
+            queries (mapv (comp (or query-formatter identity) logged-query) query-infos)]
         (if (= (count queries) 1)
           (log/log logger :info ::sql/query {:query (first queries), :elapsed elapsed})
           (log/log logger :info ::sql/batch-query {:queries queries, :elapsed elapsed}))))))
 
-(defn- wrap-logger [datasource logger]
+(defn- wrap-logger [datasource logger query-formatter]
   (doto (ProxyDataSource. datasource)
-    (.addListener (logging-listener logger))))
+    (.addListener (logging-listener logger query-formatter))))
 
 (defn- unwrap-logger [^DataSource datasource]
   (.unwrap datasource DataSource))
 
 (defmethod ig/init-key :duct.database.sql/hikaricp
-  [_ {:keys [logger connection-uri jdbc-url] :as options}]
-  (sql/->Boundary {:datasource
-                   (-> (dissoc options :logger)
+  [_ {:keys [logger connection-uri jdbc-url log-query-formatter] :as options}]
+  (let [datasource (-> (dissoc options :logger)
                        (assoc :jdbc-url (or jdbc-url connection-uri))
-                       (hikari-cp/make-datasource)
-                       (cond-> logger (wrap-logger logger)))}))
+                       (hikari-cp/make-datasource))]
+    (if logger
+      (-> (sql/->Boundary {:datasource (wrap-logger datasource logger log-query-formatter)})
+          (assoc :unlogged-spec {:datasource datasource}))
+      (sql/->Boundary {:datasource datasource}))))
 
 (defmethod ig/halt-key! :duct.database.sql/hikaricp [_ {:keys [spec]}]
   (let [ds (unwrap-logger (:datasource spec))]
