@@ -79,3 +79,19 @@
     (is (not (.isClosed (unwrap-logger (:datasource spec)))))
     (ig/halt-key! ::sql/hikaricp hikaricp)
     (is (.isClosed (unwrap-logger (:datasource spec))))))
+
+(deftest unlogged-test
+  (let [logs     (atom [])
+        logger   (->AtomLogger logs)
+        hikaricp (ig/init-key ::sql/hikaricp {:jdbc-url "jdbc:sqlite:" :logger logger})
+        spec     (:unlogged-spec hikaricp)]
+    (jdbc/execute! spec ["CREATE TABLE foo (id INT, body TEXT)"])
+    (jdbc/db-do-commands spec ["INSERT INTO foo VALUES (1, 'a')"
+                               "INSERT INTO foo VALUES (2, 'b')"])
+    (is (= (jdbc/query spec ["SELECT * FROM foo"])
+           [{:id 1, :body "a"} {:id 2, :body "b"}]))
+    (is (= (jdbc/query spec ["SELECT * FROM foo WHERE id = ?" 1])
+           [{:id 1, :body "a"}]))
+    (is (= (jdbc/query spec ["SELECT * FROM foo WHERE id = ? AND body = ?" 1 "a"])
+           [{:id 1, :body "a"}]))
+    (is (empty? @logs))))
