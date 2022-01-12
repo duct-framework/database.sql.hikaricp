@@ -51,3 +51,16 @@
   (let [ds (unwrap-logger (:datasource spec))]
     (when logger (log/log logger :report ::halting))
     (hikari-cp/close-datasource ds)))
+
+(defmethod ig/suspend-key! :duct.database.sql/hikaricp [_ {:keys [logger]}]
+  (when logger (log/log logger :report ::suspending)))
+
+(defmethod ig/resume-key :duct.database.sql/hikaricp [key opts old-opts old-impl]
+  (let [get-url #(or (:jdbc-url %) (:connection-uri %))
+        new-url? (= (get-url old-opts) (get-url opts))]
+    (when-let [logger (:logger old-impl)]
+      (log/log logger :report ::resuming))
+    (if new-url?
+      old-impl
+      (do (ig/halt-key! key old-impl)
+          (ig/init-key key opts)))))
