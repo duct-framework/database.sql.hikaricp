@@ -39,12 +39,15 @@
 
 (defmethod ig/init-key :duct.database.sql/hikaricp
   [_ {:keys [logger connection-uri jdbc-url] :as options}]
-  (sql/->Boundary {:datasource
-                   (-> (dissoc options :logger)
-                       (assoc :jdbc-url (or jdbc-url connection-uri))
-                       (hikari-cp/make-datasource)
-                       (cond-> logger (wrap-logger logger)))}))
+  (when logger (log/log logger :report ::initializing))
+  (let [url (or jdbc-url connection-uri)
+        ds  (-> (dissoc options :logger)
+                (assoc :jdbc-url url)
+                (hikari-cp/make-datasource)
+                (cond-> logger (wrap-logger logger)))]
+    (sql/->Boundary {:logger logger :datasource ds})))
 
-(defmethod ig/halt-key! :duct.database.sql/hikaricp [_ {:keys [spec]}]
+(defmethod ig/halt-key! :duct.database.sql/hikaricp [_ {:keys [spec logger]}]
   (let [ds (unwrap-logger (:datasource spec))]
+    (when logger (log/log logger :report ::halting))
     (hikari-cp/close-datasource ds)))
