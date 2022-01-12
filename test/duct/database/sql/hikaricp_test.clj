@@ -67,9 +67,10 @@
            [{:id 1, :body "a"}]))
     (is (= (jdbc/query spec ["SELECT * FROM foo WHERE id = ? AND body = ?" 1 "a"])
            [{:id 1, :body "a"}]))
-    (is (every? nat-int? (map elapsed @logs)))
+    (is (every? nat-int? (rest (map elapsed @logs))))
     (is (= (map remove-elapsed @logs)
-           [[:info ::sql/query {:query ["CREATE TABLE foo (id INT, body TEXT)"]}]
+           [[:report :duct.database.sql.hikaricp/initializing nil]
+            [:info ::sql/query {:query ["CREATE TABLE foo (id INT, body TEXT)"]}]
             [:info ::sql/batch-query {:queries [["INSERT INTO foo VALUES (1, 'a')"]
                                                 ["INSERT INTO foo VALUES (2, 'b')"]]}]
             [:info ::sql/query {:query ["SELECT * FROM foo"]}]
