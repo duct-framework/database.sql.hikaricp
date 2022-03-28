@@ -7,7 +7,7 @@
                  [duct/core "0.8.0"]
                  [duct/database.sql "0.1.0"]
                  [duct/logger "0.3.0"]
-                 [hikari-cp "2.13.0"]
+                 [hikari-cp "2.14.0"]
                  [integrant "0.8.0"]
                  [net.ttddyy/datasource-proxy "1.7"]]
   :profiles
