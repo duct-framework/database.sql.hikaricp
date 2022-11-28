@@ -3,11 +3,11 @@
   :url "https://github.com/duct-framework/database.sql.hikaricp"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.10.0"]
+  :dependencies [[org.clojure/clojure "1.11.0"]
                  [duct/core "0.8.0"]
                  [duct/database.sql "0.1.0"]
                  [duct/logger "0.3.0"]
-                 [hikari-cp "2.13.0"]
+                 [hikari-cp "3.0.1"]
                  [integrant "0.8.0"]
                  [net.ttddyy/datasource-proxy "1.7"]]
   :profiles
