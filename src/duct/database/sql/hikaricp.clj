@@ -41,7 +41,8 @@
   [_ {:keys [logger connection-uri jdbc-url] :as options}]
   (sql/->Boundary {:datasource
                    (-> (dissoc options :logger)
-                       (assoc :jdbc-url (or jdbc-url connection-uri))
+                       (cond-> (and (nil? jdbc-url) connection-uri)
+                         (assoc :jdbc-url connection-uri))
                        (hikari-cp/make-datasource)
                        (cond-> logger (wrap-logger logger)))}))
 

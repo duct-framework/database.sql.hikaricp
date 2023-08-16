@@ -31,6 +31,20 @@
         (is (instance? javax.sql.DataSource datasource))
         (is (not (.isClosed datasource)))
         (ig/halt! system)
+        (is (.isClosed datasource)))))
+
+  (testing "independent connection options"
+    (let [config   {::sql/hikaricp {:adapter "sqlite"
+                                    :database-name ""
+                                    :username ""
+                                    :password ""}}
+          system   (ig/init config)
+          hikaricp (::sql/hikaricp system)]
+      (is (instance? duct.database.sql.Boundary hikaricp))
+      (let [datasource (-> hikaricp :spec :datasource)]
+        (is (instance? javax.sql.DataSource datasource))
+        (is (not (.isClosed datasource)))
+        (ig/halt! system)
         (is (.isClosed datasource))))))
 
 (deftest execute-test
