@@ -93,3 +93,22 @@
     (is (not (.isClosed (unwrap-logger (:datasource spec)))))
     (ig/halt-key! ::sql/hikaricp hikaricp)
     (is (.isClosed (unwrap-logger (:datasource spec))))))
+
+(deftest log-level-configuration
+  (testing "configured log level"
+    (let [logs     (atom [])
+          logger   (->AtomLogger logs)
+          hikaricp (ig/init-key ::sql/hikaricp {:jdbc-url "jdbc:sqlite:"
+                                                :logger logger
+                                                :level :trace})
+          spec     (:spec hikaricp)]
+      (jdbc/execute! spec ["CREATE TABLE foo (id INT, body TEXT)"])
+      (jdbc/db-do-commands spec ["INSERT INTO foo VALUES (1, 'a')"
+                                 "INSERT INTO foo VALUES (2, 'b')"])
+      (jdbc/query spec ["SELECT * FROM foo"])
+      (is (= (map remove-elapsed @logs)
+            [[:trace ::sql/query {:query ["CREATE TABLE foo (id INT, body TEXT)"]}]
+             [:trace ::sql/batch-query {:queries [["INSERT INTO foo VALUES (1, 'a')"]
+                                                  ["INSERT INTO foo VALUES (2, 'b')"]]}]
+             [:trace ::sql/query {:query ["SELECT * FROM foo"]}]]))
+      (ig/halt-key! ::sql/hikaricp hikaricp))))

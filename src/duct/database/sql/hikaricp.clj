@@ -20,31 +20,31 @@
         params (query-parameter-lists query-info)]
     (into [query] (if (= (count params) 1) (first params) params))))
 
-(defn- logging-listener [logger]
+(defn- logging-listener [logger level]
   (reify QueryExecutionListener
     (beforeQuery [_ _ _])
     (afterQuery [_ exec-info query-infos]
       (let [elapsed (.getElapsedTime exec-info)
             queries (mapv logged-query query-infos)]
         (if (= (count queries) 1)
-          (log/log logger :info ::sql/query {:query (first queries), :elapsed elapsed})
-          (log/log logger :info ::sql/batch-query {:queries queries, :elapsed elapsed}))))))
+          (log/log logger level ::sql/query {:query (first queries), :elapsed elapsed})
+          (log/log logger level ::sql/batch-query {:queries queries, :elapsed elapsed}))))))
 
-(defn- wrap-logger [datasource logger]
+(defn- wrap-logger [datasource logger level]
   (doto (ProxyDataSource. datasource)
-    (.addListener (logging-listener logger))))
+    (.addListener (logging-listener logger level))))
 
 (defn- unwrap-logger [^DataSource datasource]
   (.unwrap datasource DataSource))
 
 (defmethod ig/init-key :duct.database.sql/hikaricp
-  [_ {:keys [logger connection-uri jdbc-url] :as options}]
+  [_ {:keys [logger connection-uri jdbc-url level] :as options :or {level :info}}]
   (sql/->Boundary {:datasource
                    (-> (dissoc options :logger)
                        (cond-> (and (nil? jdbc-url) connection-uri)
                          (assoc :jdbc-url connection-uri))
                        (hikari-cp/make-datasource)
-                       (cond-> logger (wrap-logger logger)))}))
+                       (cond-> logger (wrap-logger logger level)))}))
 
 (defmethod ig/halt-key! :duct.database.sql/hikaricp [_ {:keys [spec]}]
   (let [ds (unwrap-logger (:datasource spec))]
