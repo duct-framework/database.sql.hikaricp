@@ -1,6 +1,4 @@
-# Duct database.sql.hikaricp
-
-[![Build Status](https://travis-ci.org/duct-framework/database.sql.hikaricp.svg?branch=master)](https://travis-ci.org/duct-framework/database.sql.hikaricp)
+# Duct database.sql.hikaricp [![Build Status](https://github.com/duct-framework/database.sql.hikaricp/actions/workflows/test.yml/badge.svg)](https://github.com/duct-framework/database.sql.hikaricp/actions/workflows/test.yml)
 
 [Integrant][] methods for connecting to a SQL database from the
 [Duct][] framework using [HikariCP][], an efficient connection pool.
