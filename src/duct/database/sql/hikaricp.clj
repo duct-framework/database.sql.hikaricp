@@ -4,6 +4,7 @@
             [duct.logger :as log]
             [hikari-cp.core :as hikari-cp])
   (:import [javax.sql DataSource]
+           [com.zaxxer.hikari HikariDataSource]
            [net.ttddyy.dsproxy QueryInfo]
            [net.ttddyy.dsproxy.proxy ParameterSetOperation]
            [net.ttddyy.dsproxy.support ProxyDataSource]
@@ -35,7 +36,9 @@
     (.addListener (logging-listener logger))))
 
 (defn- unwrap-logger [^DataSource datasource]
-  (.unwrap datasource DataSource))
+  (if (.isWrapperFor datasource HikariDataSource)
+    (.unwrap datasource HikariDataSource)
+    datasource))
 
 (defmethod ig/init-key :duct.database.sql/hikaricp
   [_ {:keys [logger connection-uri jdbc-url] :as options}]

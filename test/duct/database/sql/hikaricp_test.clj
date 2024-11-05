@@ -9,6 +9,14 @@
 
 (ig/load-hierarchy)
 
+(defn- unwrap-logger [^javax.sql.DataSource datasource]
+  (if (.isWrapperFor datasource com.zaxxer.hikari.HikariDataSource)
+    (.unwrap datasource com.zaxxer.hikari.HikariDataSource)
+    datasource))
+
+(defn- closed? [datasource]
+  (.isClosed (unwrap-logger datasource)))
+
 (deftest connection-test
   (testing "jdbc-url"
     (let [config   {::sql/hikaricp {:jdbc-url "jdbc:sqlite:"}}
@@ -17,9 +25,9 @@
       (is (instance? duct.database.sql.Boundary hikaricp))
       (let [datasource (-> hikaricp :spec :datasource)]
         (is (instance? javax.sql.DataSource datasource))
-        (is (not (.isClosed datasource)))
+        (is (not (closed? datasource)))
         (ig/halt! system)
-        (is (.isClosed datasource)))))
+        (is (closed? datasource)))))
 
   (testing "connection-uri"
     (let [config   {::sql/hikaricp {:connection-uri "jdbc:sqlite:"}}
@@ -28,9 +36,9 @@
       (is (instance? duct.database.sql.Boundary hikaricp))
       (let [datasource (-> hikaricp :spec :datasource)]
         (is (instance? javax.sql.DataSource datasource))
-        (is (not (.isClosed datasource)))
+        (is (not (closed? datasource)))
         (ig/halt! system)
-        (is (.isClosed datasource)))))
+        (is (closed? datasource)))))
 
   (testing "independent connection options"
     (let [config   {::sql/hikaricp {:adapter "sqlite"
@@ -42,9 +50,9 @@
       (is (instance? duct.database.sql.Boundary hikaricp))
       (let [datasource (-> hikaricp :spec :datasource)]
         (is (instance? javax.sql.DataSource datasource))
-        (is (not (.isClosed datasource)))
+        (is (not (closed? datasource)))
         (ig/halt! system)
-        (is (.isClosed datasource))))))
+        (is (closed? datasource))))))
 
 (deftest execute-test
   (let [spec (:spec (ig/init-key ::sql/hikaricp {:jdbc-url "jdbc:sqlite:"}))]
@@ -62,9 +70,6 @@
 
 (defn- elapsed [[_ _ {:keys [elapsed]}]]
   elapsed)
-
-(defn- unwrap-logger [^javax.sql.DataSource datasource]
-  (.unwrap datasource javax.sql.DataSource))
 
 (deftest logging-test
   (let [logs     (atom [])
@@ -91,4 +96,4 @@
              {:query ["SELECT * FROM foo WHERE id = ? AND body = ?" 1 "a"]}]]))
     (is (not (.isClosed (unwrap-logger (:datasource spec)))))
     (ig/halt-key! ::sql/hikaricp hikaricp)
-    (is (.isClosed (unwrap-logger (:datasource spec))))))
+    (is (closed? (:datasource spec)))))
