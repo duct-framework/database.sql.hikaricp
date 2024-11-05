@@ -2,13 +2,12 @@
   (:require [clojure.java.io :as io]
             [clojure.java.jdbc :as jdbc]
             [clojure.test :refer :all]
-            [duct.core :as duct]
             [duct.database.sql :as sql]
             [duct.database.sql.hikaricp :as hikaricp]
             [duct.logger :as log]
             [integrant.core :as ig]))
 
-(duct/load-hierarchy)
+(ig/load-hierarchy)
 
 (deftest connection-test
   (testing "jdbc-url"
