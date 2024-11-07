@@ -4,7 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.11.4"]
-                 [org.duct-framework/database.sql "0.2.0"]
+                 [org.duct-framework/database.sql "0.3.0"]
                  [org.duct-framework/logger "0.4.0"]
                  [hikari-cp "3.1.0"]
                  [integrant "0.13.1"]

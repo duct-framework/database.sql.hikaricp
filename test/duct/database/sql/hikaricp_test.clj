@@ -23,7 +23,7 @@
           system   (ig/init config)
           hikaricp (::sql/hikaricp system)]
       (is (instance? duct.database.sql.Boundary hikaricp))
-      (let [datasource (-> hikaricp :spec :datasource)]
+      (let [datasource (:datasource hikaricp)]
         (is (instance? javax.sql.DataSource datasource))
         (is (not (closed? datasource)))
         (ig/halt! system)
@@ -34,7 +34,7 @@
           system   (ig/init config)
           hikaricp (::sql/hikaricp system)]
       (is (instance? duct.database.sql.Boundary hikaricp))
-      (let [datasource (-> hikaricp :spec :datasource)]
+      (let [datasource (:datasource hikaricp)]
         (is (instance? javax.sql.DataSource datasource))
         (is (not (closed? datasource)))
         (ig/halt! system)
@@ -48,14 +48,14 @@
           system   (ig/init config)
           hikaricp (::sql/hikaricp system)]
       (is (instance? duct.database.sql.Boundary hikaricp))
-      (let [datasource (-> hikaricp :spec :datasource)]
+      (let [datasource (:datasource hikaricp)]
         (is (instance? javax.sql.DataSource datasource))
         (is (not (closed? datasource)))
         (ig/halt! system)
         (is (closed? datasource))))))
 
 (deftest execute-test
-  (let [spec (:spec (ig/init-key ::sql/hikaricp {:jdbc-url "jdbc:sqlite:"}))]
+  (let [spec (ig/init-key ::sql/hikaricp {:jdbc-url "jdbc:sqlite:"})]
     (jdbc/execute! spec ["CREATE TABLE foo (id INT)"])
     (jdbc/db-do-commands spec ["INSERT INTO foo VALUES (1)" "INSERT INTO foo VALUES (2)"])
     (is (= (jdbc/query spec ["SELECT * FROM foo"]) [{:id 1} {:id 2}]))))
@@ -72,10 +72,9 @@
   elapsed)
 
 (deftest logging-test
-  (let [logs     (atom [])
-        logger   (->AtomLogger logs)
-        hikaricp (ig/init-key ::sql/hikaricp {:jdbc-url "jdbc:sqlite:" :logger logger})
-        spec     (:spec hikaricp)]
+  (let [logs   (atom [])
+        logger (->AtomLogger logs)
+        spec   (ig/init-key ::sql/hikaricp {:jdbc-url "jdbc:sqlite:" :logger logger})]
     (jdbc/execute! spec ["CREATE TABLE foo (id INT, body TEXT)"])
     (jdbc/db-do-commands spec ["INSERT INTO foo VALUES (1, 'a')"
                                "INSERT INTO foo VALUES (2, 'b')"])
@@ -95,5 +94,5 @@
             [:info ::sql/query
              {:query ["SELECT * FROM foo WHERE id = ? AND body = ?" 1 "a"]}]]))
     (is (not (.isClosed (unwrap-logger (:datasource spec)))))
-    (ig/halt-key! ::sql/hikaricp hikaricp)
+    (ig/halt-key! ::sql/hikaricp spec)
     (is (closed? (:datasource spec)))))
