@@ -61,13 +61,13 @@
            [{:id 1, :body "a"}]))
     (is (every? nat-int? (map elapsed @logs)))
     (is (= (map remove-elapsed @logs)
-           [[:info ::sql/query {:query ["CREATE TABLE foo (id INT, body TEXT)"]}]
-            [:info ::sql/batch-query {:queries [["INSERT INTO foo VALUES (1, 'a')"]
-                                                ["INSERT INTO foo VALUES (2, 'b')"]]}]
-            [:info ::sql/query {:query ["SELECT * FROM foo"]}]
-            [:info ::sql/query {:query ["SELECT * FROM foo WHERE id = ?" 1]}]
+           [[:info ::sql/query {:sql [["CREATE TABLE foo (id INT, body TEXT)"]]}]
+            [:info ::sql/query {:sql [["INSERT INTO foo VALUES (1, 'a')"]
+                                      ["INSERT INTO foo VALUES (2, 'b')"]]}]
+            [:info ::sql/query {:sql [["SELECT * FROM foo"]]}]
+            [:info ::sql/query {:sql [["SELECT * FROM foo WHERE id = ?" 1]]}]
             [:info ::sql/query
-             {:query ["SELECT * FROM foo WHERE id = ? AND body = ?" 1 "a"]}]]))
+             {:sql [["SELECT * FROM foo WHERE id = ? AND body = ?" 1 "a"]]}]]))
     (is (not (.isClosed (unwrap-logger (:datasource spec)))))
     (ig/halt-key! ::sql/hikaricp spec)
     (is (closed? (:datasource spec)))))

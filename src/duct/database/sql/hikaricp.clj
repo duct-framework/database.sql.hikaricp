@@ -24,11 +24,8 @@
   (reify QueryExecutionListener
     (beforeQuery [_ _ _])
     (afterQuery [_ exec-info query-infos]
-      (let [elapsed (.getElapsedTime exec-info)
-            queries (mapv logged-query query-infos)]
-        (if (= (count queries) 1)
-          (log/log logger :info ::sql/query {:query (first queries), :elapsed elapsed})
-          (log/log logger :info ::sql/batch-query {:queries queries, :elapsed elapsed}))))))
+      (log/info logger ::sql/query {:sql     (mapv logged-query query-infos)
+                                    :elapsed (.getElapsedTime exec-info)}))))
 
 (defn- wrap-logger [datasource logger]
   (doto (ProxyDataSource. datasource)
