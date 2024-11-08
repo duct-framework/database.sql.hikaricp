@@ -1,10 +1,8 @@
 (ns duct.database.sql.hikaricp-test
-  (:require [clojure.java.io :as io]
-            [clojure.java.jdbc :as jdbc]
-            [clojure.test :refer :all]
+  (:require [clojure.java.jdbc :as jdbc]
+            [clojure.test :refer [deftest is testing]]
             [duct.database.sql :as sql]
             [duct.database.sql.hikaricp :as hikaricp]
-            [duct.logger :as log]
             [integrant.core :as ig]))
 
 (ig/load-hierarchy)
