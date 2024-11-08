@@ -23,17 +23,16 @@ This library depends on [database.sql][] and provides the
 `:duct.database.sql/hikaricp` key, which is derived from
 `:duct.database/sql`.
 
-The key takes the same [config options][] as the Clojure [hikari-cp][]
-wrapper library, and returns a `duct.database.sql.Boundary` record
-that contains a database spec.
+The key takes the same [config options][] as HikariCP (but as keywords,
+rather than setters), and returns a `duct.database.sql.Boundary` record
+that contains a DataSource.
 
 ```edn
-{:duct.database.sql/hikaricp {:jdbc-url "jdbc:sqlite:db/example.sqlite"}}
+{:duct.database.sql/hikaricp {:jdbcUrl "jdbc:sqlite:db/example.sqlite"}}
 ```
 
 [database.sql]:   https://github.com/duct-framework/database.sql
-[config options]: https://github.com/tomekw/hikari-cp#configuration-options
-[hikari-cp]:      https://github.com/tomekw/hikari-cp
+[config options]: https://github.com/brettwooldridge/HikariCP#gear-configuration-knobs-baby
 
 ## License
 
