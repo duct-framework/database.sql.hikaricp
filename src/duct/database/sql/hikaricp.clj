@@ -1,12 +1,11 @@
 (ns duct.database.sql.hikaricp
-  (:require [integrant.core :as ig]
-            [duct.database.sql :as sql]
+  (:require [duct.database.sql :as sql]
             [duct.logger :as log]
-            [hikari-cp.core :as hikari-cp])
+            [integrant.core :as ig]
+            [next.jdbc.connection :as conn])
   (:import [javax.sql DataSource]
            [com.zaxxer.hikari HikariDataSource]
            [net.ttddyy.dsproxy QueryInfo]
-           [net.ttddyy.dsproxy.proxy ParameterSetOperation]
            [net.ttddyy.dsproxy.support ProxyDataSource]
            [net.ttddyy.dsproxy.listener QueryExecutionListener]))
 
@@ -41,12 +40,10 @@
     datasource))
 
 (defmethod ig/init-key :duct.database.sql/hikaricp
-  [_ {:keys [logger connection-uri jdbc-url] :as options}]
+  [_ {:keys [logger] :as options}]
   (sql/->Boundary (-> (dissoc options :logger)
-                      (cond-> (and (nil? jdbc-url) connection-uri)
-                        (assoc :jdbc-url connection-uri))
-                      (hikari-cp/make-datasource)
+                      (as-> cfg (conn/->pool HikariDataSource cfg))
                       (cond-> logger (wrap-logger logger)))))
 
 (defmethod ig/halt-key! :duct.database.sql/hikaricp [_ {:keys [datasource]}]
-  (hikari-cp/close-datasource (unwrap-logger datasource)))
+  (.close ^HikariDataSource (unwrap-logger datasource)))

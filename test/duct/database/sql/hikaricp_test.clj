@@ -19,32 +19,7 @@
 
 (deftest connection-test
   (testing "jdbc-url"
-    (let [config   {::sql/hikaricp {:jdbc-url "jdbc:sqlite:"}}
-          system   (ig/init config)
-          hikaricp (::sql/hikaricp system)]
-      (is (instance? duct.database.sql.Boundary hikaricp))
-      (let [datasource (:datasource hikaricp)]
-        (is (instance? javax.sql.DataSource datasource))
-        (is (not (closed? datasource)))
-        (ig/halt! system)
-        (is (closed? datasource)))))
-
-  (testing "connection-uri"
-    (let [config   {::sql/hikaricp {:connection-uri "jdbc:sqlite:"}}
-          system   (ig/init config)
-          hikaricp (::sql/hikaricp system)]
-      (is (instance? duct.database.sql.Boundary hikaricp))
-      (let [datasource (:datasource hikaricp)]
-        (is (instance? javax.sql.DataSource datasource))
-        (is (not (closed? datasource)))
-        (ig/halt! system)
-        (is (closed? datasource)))))
-
-  (testing "independent connection options"
-    (let [config   {::sql/hikaricp {:adapter "sqlite"
-                                    :database-name ""
-                                    :username ""
-                                    :password ""}}
+    (let [config   {::sql/hikaricp {:jdbcUrl "jdbc:sqlite:"}}
           system   (ig/init config)
           hikaricp (::sql/hikaricp system)]
       (is (instance? duct.database.sql.Boundary hikaricp))
@@ -55,7 +30,7 @@
         (is (closed? datasource))))))
 
 (deftest execute-test
-  (let [spec (ig/init-key ::sql/hikaricp {:jdbc-url "jdbc:sqlite:"})]
+  (let [spec (ig/init-key ::sql/hikaricp {:jdbcUrl "jdbc:sqlite:"})]
     (jdbc/execute! spec ["CREATE TABLE foo (id INT)"])
     (jdbc/db-do-commands spec ["INSERT INTO foo VALUES (1)" "INSERT INTO foo VALUES (2)"])
     (is (= (jdbc/query spec ["SELECT * FROM foo"]) [{:id 1} {:id 2}]))))
@@ -74,7 +49,7 @@
 (deftest logging-test
   (let [logs   (atom [])
         logger (->AtomLogger logs)
-        spec   (ig/init-key ::sql/hikaricp {:jdbc-url "jdbc:sqlite:" :logger logger})]
+        spec   (ig/init-key ::sql/hikaricp {:jdbcUrl "jdbc:sqlite:" :logger logger})]
     (jdbc/execute! spec ["CREATE TABLE foo (id INT, body TEXT)"])
     (jdbc/db-do-commands spec ["INSERT INTO foo VALUES (1, 'a')"
                                "INSERT INTO foo VALUES (2, 'b')"])
