@@ -11,11 +11,11 @@
 
 Add the following dependency to your deps.edn file:
 
-    org.duct-framework/database.sql.hikaricp {:mvn/version "0.7.0"}
+    org.duct-framework/database.sql.hikaricp {:mvn/version "0.7.1"}
 
 Or to your Leiningen project file:
 
-    [org.duct-framework/database.sql.hikaricp "0.7.0"]
+    [org.duct-framework/database.sql.hikaricp "0.7.1"]
 
 ## Usage
 
